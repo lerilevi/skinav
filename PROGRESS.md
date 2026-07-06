@@ -37,7 +37,7 @@
 ## 🔨 NOW / ŞİMDİ (active near-term work)
 
 - [~] **EN:** Small fixes (in progress — see FIXES section below). **TR:** Küçük düzeltmeler (devam ediyor — aşağıdaki DÜZELTMELER bölümüne bakın).
-- [ ] **EN:** Connect project to GitHub (backup + shared status + phone viewing). **TR:** Projeyi GitHub'a bağla (yedek + ortak durum + telefondan görüntüleme).
+- [x] **EN:** Connect project to GitHub — public repo at https://github.com/lerilevi/skinav (secrets kept out via `.gitignore` + `.env.example`). **TR:** Projeyi GitHub'a bağla — genel repo: https://github.com/lerilevi/skinav (gizli bilgiler `.gitignore` + `.env.example` ile dışarıda tutuldu).
 - [ ] **EN:** Add Sentry crash/error logging (before field test). Instruction: "Add Sentry for crash and error logging, set it up to work with Expo." **TR:** Sentry çökme/hata loglaması ekle (saha testinden önce). Talimat: "Çökme ve hata loglaması için Sentry ekle, Expo ile çalışacak şekilde kur."
 
 ### FIXES / DÜZELTMELER
@@ -103,4 +103,4 @@ These describe the *prototype*; some are already resolved in the native build �
 
 ---
 
-*Last updated / Son güncelleme: 2026-07-04 — PROGRESS.md created as shared source of truth; Claude Code reconciled status marks against the actual code (added on-device auth + persistence to DONE; resort-name fix logged). / Ortak referans belgesi olarak oluşturuldu; Claude Code durum işaretlerini gerçek kodla eşitledi (cihaz-içi kimlik doğrulama + kalıcılık BİTENLER'e eklendi; resort-adı düzeltmesi kaydedildi).*
+*Last updated / Son güncelleme: 2026-07-06 — pushed to GitHub (https://github.com/lerilevi/skinav) with a secrets-safe .gitignore + .env.example. Earlier: Claude Code reconciled status marks against the actual code (on-device auth + persistence, resort-name fix). / GitHub'a gönderildi (https://github.com/lerilevi/skinav), gizli-bilgi-güvenli .gitignore + .env.example ile. Öncesinde: Claude Code durum işaretlerini gerçek kodla eşitledi.*
