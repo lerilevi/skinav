@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '../components/Screen';
@@ -36,6 +36,15 @@ export function AlertsScreen() {
   const resortName = resort?.name ?? 'Zermatt';
   const [filter, setFilter] = useState<'all' | AlertCategory>('all');
   const [dismissed, setDismissed] = useState<number[]>([]);
+
+  // Opening Alerts counts as reading them: mark all read when leaving the screen
+  // (it's a pushed screen, so unmount = navigated away) so any notification badge
+  // resets to 0. The manual "MARK READ" button still works for an instant reset.
+  useEffect(() => {
+    return () => {
+      setAlertsRead(true);
+    };
+  }, [setAlertsRead]);
 
   const visible = useMemo(() => ALERTS.filter((a) => !dismissed.includes(a.id)), [dismissed]);
   const filtered = useMemo(

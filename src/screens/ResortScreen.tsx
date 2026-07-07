@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -12,21 +12,29 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-// SCREEN 3 — Resort selection. The catalog is resort-independent; selecting one
-// stores it in app state (so headers show the right name) and opens the
-// (placeholder) map tab. Real piste/lift data is pulled later.
+// SCREEN 3 — Resort selection. Shared by two flows via the `mode` param:
+//  • 'onboarding' (default) — part of signup; confirming resets into the app.
+//  • 'change' — reached from Account; preselects the current resort and returns
+//    back on confirm. Either way the choice is stored in AppContext so headers
+//    (and the future map's top-left label) read the same state.
 export function ResortScreen() {
   const navigation = useNavigation<Nav>();
-  const { setResort } = useApp();
-  const [selected, setSelected] = useState<number | null>(null);
+  const route = useRoute<RouteProp<RootStackParamList, 'Resort'>>();
+  const isChange = route.params?.mode === 'change';
+  const { resort, setResort } = useApp();
+  const [selected, setSelected] = useState<number | null>(isChange ? (resort?.id ?? null) : null);
   const [search, setSearch] = useState('');
 
   const openResort = () => {
     const chosen = RESORTS.find((r) => r.id === selected);
     if (!chosen) return;
     setResort(chosen);
-    // Reset so the onboarding screens aren't left in the back stack.
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    if (isChange) {
+      navigation.goBack();
+    } else {
+      // Onboarding: reset so the signup screens aren't left in the back stack.
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    }
   };
 
   const filtered = useMemo(
@@ -37,8 +45,22 @@ export function ResortScreen() {
   return (
     <Screen>
       <View style={styles.header}>
-        <Text style={styles.title}>Select Resort</Text>
-        <Text style={styles.subtitle}>Choose where you&apos;re skiing today</Text>
+        {isChange ? (
+          <View style={styles.titleRow}>
+            <Pressable onPress={() => navigation.goBack()} hitSlop={8} style={styles.backBtn}>
+              <Text style={styles.backArrow}>←</Text>
+            </Pressable>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>Change Resort</Text>
+              <Text style={styles.subtitle}>Switch to a different resort</Text>
+            </View>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.title}>Select Resort</Text>
+            <Text style={styles.subtitle}>Choose where you&apos;re skiing today</Text>
+          </>
+        )}
         <View style={styles.searchBox}>
           <Text style={{ color: theme.gray }}>🔍</Text>
           <TextInput
@@ -90,7 +112,13 @@ export function ResortScreen() {
 
       <View style={styles.footer}>
         <GradientButton
-          label={selected ? 'Open Resort Map →' : 'Select a resort'}
+          label={
+            selected
+              ? isChange
+                ? 'Save Resort'
+                : 'Open Resort Map →'
+              : 'Select a resort'
+          }
           onPress={openResort}
           disabled={!selected}
           fontSize={16}
@@ -102,6 +130,16 @@ export function ResortScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  backBtn: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backArrow: { color: theme.white, fontSize: 18 },
   title: { fontSize: 26, fontFamily: fonts.extrabold, color: theme.white, marginBottom: 4 },
   subtitle: { fontSize: 14, color: theme.gray, fontFamily: fonts.regular },
   searchBox: {

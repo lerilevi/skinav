@@ -17,7 +17,9 @@ export type RootStackParamList = {
   SignIn: undefined;
   EmailSignup: undefined;
   ProfileSetup: undefined;
-  Resort: undefined;
+  // 'onboarding' (default): part of signup, resets into the app on confirm.
+  // 'change': reached from Account to switch resort, returns back on confirm.
+  Resort: { mode?: 'onboarding' | 'change' } | undefined;
   Main: NavigatorScreenParams<MainTabsParamList> | undefined;
   Alerts: undefined;
   Emergency: undefined;

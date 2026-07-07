@@ -44,6 +44,8 @@
 - [x] **EN:** Resort name flows through to Map / Routes / Alerts headers (was hardcoded "Zermatt"). **TR:** Resort adı Harita / Rotalar / Uyarılar başlıklarına işliyor (sabit "Zermatt" idi).
 - [x] **EN:** Change Password now really works — verifies the current password against the stored hash and saves a new salted hash; wrong current password shows a real error. **TR:** Şifre Değiştir artık gerçekten çalışıyor — mevcut şifreyi saklanan hash ile doğrular ve yeni tuzlu hash kaydeder; yanlış mevcut şifre gerçek hata gösterir.
 - [x] **EN:** Emergency buttons functional — Ski Patrol (1414) and Emergency (112) open the dialer via tel: links; "Share Location" opens the OS share sheet. **TR:** Acil durum düğmeleri çalışıyor — Kayak Devriyesi (1414) ve Acil (112) tel: bağlantılarıyla tuşlayıcıyı açar; "Konumu Paylaş" işletim sistemi paylaşım sayfasını açar.
+- [x] **EN:** Alerts auto-mark-read — viewing the Alerts screen and leaving marks all read (via `alertsRead`), so the notification badge resets to 0. **TR:** Uyarılar otomatik okundu — Uyarılar ekranını görüp çıkmak hepsini okundu işaretler (`alertsRead` ile), böylece bildirim rozeti 0'a döner.
+- [x] **EN:** Change resort from Profile — reuses the ResortScreen picker in "change" mode; the choice is stored app-wide in AppContext (same state the map's top-left label / tap-to-change will read). **TR:** Profil'den resort değiştir — ResortScreen seçiciyi "değiştir" modunda yeniden kullanır; seçim AppContext'te uygulama genelinde saklanır (haritanın sol-üst etiketi / dokunarak değiştir aynı state'i okuyacak).
 - [ ] _(add each further fix here / sonraki düzeltmeleri buraya ekle)_
 
 ---
@@ -105,4 +107,4 @@ These describe the *prototype*; some are already resolved in the native build �
 
 ---
 
-*Last updated / Son güncelleme: 2026-07-06 — fixes: real Change Password + working Emergency call/share buttons. Earlier today: pushed to GitHub (https://github.com/lerilevi/skinav) with a secrets-safe .gitignore + .env.example; reconciled status marks against the actual code. / düzeltmeler: gerçek Şifre Değiştir + çalışan Acil durum arama/paylaşım düğmeleri. Bugün öncesinde: GitHub'a gönderildi, durum işaretleri gerçek kodla eşitlendi.*
+*Last updated / Son güncelleme: 2026-07-06 — fixes: real Change Password, working Emergency call/share buttons, Alerts auto-mark-read, change-resort-from-Profile. Earlier: pushed to GitHub (https://github.com/lerilevi/skinav) with a secrets-safe .gitignore + .env.example; reconciled status marks against the actual code. / düzeltmeler: gerçek Şifre Değiştir, çalışan Acil durum düğmeleri, Uyarılar otomatik okundu, Profil'den resort değiştir. Öncesinde: GitHub'a gönderildi, durum işaretleri gerçek kodla eşitlendi.*

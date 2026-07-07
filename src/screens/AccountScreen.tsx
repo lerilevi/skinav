@@ -51,6 +51,7 @@ export function AccountScreen() {
     prefs,
     setPrefs,
     stats,
+    resort,
     signOut,
     deleteAccount,
   } = useApp();
@@ -225,6 +226,23 @@ export function AccountScreen() {
             </View>
           ))}
         </View>
+
+        {/* Resort row — reuses the ResortScreen picker in "change" mode */}
+        <Pressable
+          onPress={() => navigation.navigate('Resort', { mode: 'change' })}
+          style={[styles.friendsRow, { marginBottom: 10 }]}
+        >
+          <View style={styles.friendsIcon}>
+            <Text style={{ fontSize: 16 }}>⛰️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.friendsTitle}>Resort</Text>
+            <Text style={styles.friendsDesc}>
+              {resort ? `${resort.name} · Tap to change` : 'Not selected · Tap to choose'}
+            </Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
 
         {/* Friends row */}
         <Pressable onPress={() => navigation.navigate('Friends')} style={styles.friendsRow}>
