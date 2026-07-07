@@ -114,6 +114,28 @@ export async function updateAccount(account: StoredAccount): Promise<void> {
   await saveAccounts(accounts);
 }
 
+// Verify the current password and set a new one (fresh salt + hash). Throws
+// AuthError if the current password is wrong. Returns the updated account so the
+// caller can keep its in-memory copy in sync.
+export async function changePassword(
+  account: StoredAccount,
+  currentPassword: string,
+  newPassword: string,
+): Promise<StoredAccount> {
+  const currentHash = await hashPassword(currentPassword, account.salt);
+  if (currentHash !== account.passwordHash) {
+    throw new AuthError('Current password is incorrect');
+  }
+  const salt = Crypto.randomUUID();
+  const updated: StoredAccount = {
+    ...account,
+    salt,
+    passwordHash: await hashPassword(newPassword, salt),
+  };
+  await updateAccount(updated);
+  return updated;
+}
+
 // Permanently remove an account and end its session.
 export async function deleteAccount(id: string): Promise<void> {
   const accounts = await loadAccounts();

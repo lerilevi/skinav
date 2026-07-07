@@ -2,6 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { AuthError } from '../services/accounts';
+import { useApp } from '../state/AppContext';
 import { fonts, theme } from '../theme';
 import { ModalShell } from './ModalShell';
 
@@ -10,14 +12,18 @@ interface ChangePasswordModalProps {
   onClose: () => void;
 }
 
-// Local-only validation (no API yet — per Auth notes there's no server to verify
-// the current password against, so there's no "wrong password" error path).
+// Real password change: client-side validation, then the current password is
+// verified against the stored salted hash and a new hash is saved to the
+// account (see services/accounts.ts). A wrong current password now surfaces a
+// real error — the path the prototype couldn't have.
 export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalProps) {
+  const { changePassword } = useApp();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const reset = () => {
     setCurrent('');
@@ -25,6 +31,7 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
     setConfirm('');
     setSubmitted(false);
     setError('');
+    setBusy(false);
   };
 
   const close = () => {
@@ -32,14 +39,22 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
     onClose();
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
+    if (busy) return;
     setError('');
     if (!current) return setError('Enter your current password');
     if (next.length < 8) return setError('New password must be at least 8 characters');
     if (next !== confirm) return setError("New passwords don't match");
     if (next === current) return setError('New password must be different');
-    setSubmitted(true);
-    setTimeout(close, 1400);
+    setBusy(true);
+    try {
+      await changePassword(current, next);
+      setSubmitted(true);
+      setTimeout(close, 1400);
+    } catch (e) {
+      setError(e instanceof AuthError ? e.message : 'Could not update password. Try again.');
+      setBusy(false);
+    }
   };
 
   const fields: { label: string; value: string; set: (v: string) => void; placeholder: string }[] = [
@@ -90,14 +105,14 @@ export function ChangePasswordModal({ visible, onClose }: ChangePasswordModalPro
             <Pressable onPress={close} style={[styles.btn, styles.cancelBtn]}>
               <Text style={styles.cancelText}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={handleUpdate} style={{ flex: 1.3 }}>
+            <Pressable onPress={handleUpdate} disabled={busy} style={{ flex: 1.3 }}>
               <LinearGradient
                 colors={[theme.blue, theme.cyan]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={[styles.btn, styles.confirmBtn]}
+                style={[styles.btn, styles.confirmBtn, busy && { opacity: 0.7 }]}
               >
-                <Text style={styles.confirmText}>Update Password</Text>
+                <Text style={styles.confirmText}>{busy ? 'Updating…' : 'Update Password'}</Text>
               </LinearGradient>
             </Pressable>
           </View>

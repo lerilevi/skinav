@@ -9,6 +9,8 @@ import React, {
 
 import { RESORTS } from '../data/resorts';
 import {
+  AuthError,
+  changePassword as authChangePassword,
   DEFAULT_PREFS,
   deleteAccount as authDeleteAccount,
   getSessionAccount,
@@ -55,6 +57,8 @@ interface AppState {
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  /** Verify the current password and set a new one. Throws AuthError if wrong. */
+  changePassword: (current: string, next: string) => Promise<void>;
   // Whether the signed-in user has finished onboarding (picked a resort).
   onboarded: boolean;
 
@@ -178,6 +182,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     resetToDefaults();
   };
 
+  const changePassword = async (current: string, next: string) => {
+    const acct = accountRef.current;
+    if (!acct) throw new AuthError('You are not signed in');
+    // Keep accountRef in sync so the debounced auto-save doesn't rewrite the old
+    // hash back over the new one.
+    accountRef.current = await authChangePassword(acct, current, next);
+  };
+
   const value = useMemo<AppState>(
     () => ({
       ready,
@@ -186,6 +198,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signOut,
       deleteAccount,
+      changePassword,
       onboarded: resort != null,
       skiType,
       setSkiType,

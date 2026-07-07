@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fonts, theme } from '../theme';
@@ -16,10 +16,41 @@ const REFERENCES = [
   { icon: '🏠', label: 'Altitude Restaurant', dist: '300m', dir: 'Blue 7 downhill' },
 ];
 
-// SCREEN 8 — Emergency. Call / share buttons are stubs (would need tel: links or
-// native phone/share APIs). Location block is hardcoded demo data.
+// Hardcoded demo location (real GPS comes with the tracking sprint).
+const LOCATION_LINE = 'Blue 7 · Near Marker 9';
+const LOCATION_DETAIL = 'Zermatt Ski Resort · Altitude ~2,450m';
+
+// SCREEN 8 — Emergency. Call buttons open the phone dialer via tel: links (the
+// user still taps to dial — no auto-call); Share opens the OS share sheet with
+// the current location. Location block is hardcoded demo data.
 export function EmergencyScreen() {
   const navigation = useNavigation<Nav>();
+
+  // Open the dialer for a number. tel: links don't auto-dial — they just prefill
+  // the dialer — but we guard for devices/simulators with no phone app.
+  const callNumber = async (label: string, number: string) => {
+    const url = `tel:${number}`;
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) {
+        Alert.alert('Can’t place the call', `This device can’t dial ${label} (${number}).`);
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Can’t place the call', `Something went wrong dialing ${label} (${number}).`);
+    }
+  };
+
+  const shareLocation = async () => {
+    try {
+      await Share.share({
+        message: `🆘 SkiNav — I need help. My location: ${LOCATION_LINE}, ${LOCATION_DETAIL}.`,
+      });
+    } catch {
+      // User dismissed the share sheet or it failed — nothing to do.
+    }
+  };
 
   return (
     <LinearGradient colors={['#1a0000', theme.navy]} style={{ flex: 1 }}>
@@ -39,20 +70,20 @@ export function EmergencyScreen() {
           {/* Location */}
           <View style={styles.locationCard}>
             <Text style={styles.locationLabel}>YOUR CURRENT LOCATION</Text>
-            <Text style={styles.locationMain}>📍 Blue 7 · Near Marker 9</Text>
-            <Text style={styles.locationSub}>Zermatt Ski Resort · Altitude ~2,450m</Text>
+            <Text style={styles.locationMain}>📍 {LOCATION_LINE}</Text>
+            <Text style={styles.locationSub}>{LOCATION_DETAIL}</Text>
             <Text style={styles.gpsText}>● GPS Lock Active · Sharing with resort</Text>
           </View>
 
           {/* Actions */}
           <View style={{ gap: 12, marginBottom: 20 }}>
-            <Pressable style={styles.callPrimary}>
+            <Pressable style={styles.callPrimary} onPress={() => callNumber('Ski Patrol', '1414')}>
               <Text style={styles.callPrimaryText}>📞 Call Ski Patrol — 1414</Text>
             </Pressable>
-            <Pressable style={styles.callSecondary}>
+            <Pressable style={styles.callSecondary} onPress={() => callNumber('Emergency', '112')}>
               <Text style={styles.callSecondaryText}>📱 Call Emergency — 112</Text>
             </Pressable>
-            <Pressable style={styles.shareBtn}>
+            <Pressable style={styles.shareBtn} onPress={shareLocation}>
               <Text style={styles.shareText}>📤 Share Location with Contact</Text>
             </Pressable>
           </View>
